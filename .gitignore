@@ -1,0 +1,13 @@
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/facebook/*
+!/facebook/build.gradle
+*.iml
+*.iws
+.idea/
+!.idea/copyright
+!.idea/scopes
