@@ -9,7 +9,7 @@ Setup the project
 - In your Android Studio project, add a new module that pointing to the *facebook* subfolder inside the SDK directory
 - Once the module has been added to your project, Facebook SDK will most probably lack a few dependencies, that are contained in its *library* subfolder: to overcome this issue, simply open *facebook/build.gradle* file in your project and paste inside the content of the one you can find in this repository in the same location, that will actually add those dependencies to the SDK.
 - Sync your Gradle file and start coding.
----
+
 > **Note**: if you experience issues with *minSdkVersion* or *targetSdkVersion*, simply change them according to your *app/build.gradle* file.
 
 ---
