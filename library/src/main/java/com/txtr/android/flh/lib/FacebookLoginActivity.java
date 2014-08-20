@@ -1,30 +1,23 @@
 package com.txtr.android.flh.lib;
 
-
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- *
- */
-public abstract class FacebookLoginFragment extends Fragment implements SessionCallbacks{
+
+public abstract class FacebookLoginActivity extends Activity implements SessionCallbacks{
     protected UiLifecycleHelper mUiHelper;
 
-
-    public FacebookLoginFragment() {
-        // Required empty public constructor
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUiHelper = new UiLifecycleHelper(getActivity(), mStatusCallback);
+        mUiHelper = new UiLifecycleHelper(this, mStatusCallback);
         mUiHelper.onCreate(savedInstanceState);
     }
 
@@ -82,10 +75,11 @@ public abstract class FacebookLoginFragment extends Fragment implements SessionC
     }
 
     public Session login(String... profiles) {
-        return new FacebookHelper(getActivity(), this, mStatusCallback).fragmentLogin(profiles);
+        return new FacebookHelper(this, mStatusCallback).activityLogin(profiles);
     }
 
     public void logout() {
-        new FacebookHelper(getActivity()).logout();
+        new FacebookHelper(this).logout();
     }
+
 }

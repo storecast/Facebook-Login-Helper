@@ -115,7 +115,7 @@ public class MainFragment extends FacebookLoginFragment implements View.OnClickL
     }
 
     private void loginWithFacebook() {
-        login();
+        login("public_profile", "email");
         updateUi(true);
     }
 

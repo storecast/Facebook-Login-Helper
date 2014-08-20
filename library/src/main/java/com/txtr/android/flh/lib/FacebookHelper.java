@@ -19,6 +19,8 @@ public class FacebookHelper {
     private WeakReference<Session.StatusCallback> mStatusCallback;
     private WeakReference<Fragment> mSupportFragment;
 
+
+
     public FacebookHelper(Context context, Activity activity, Session.StatusCallback statusCallback) {
         setActivity(activity);
         setStatusCallback(statusCallback);
@@ -72,7 +74,19 @@ public class FacebookHelper {
         return session;
     }
 
-    public void fragmentLogout() {
+    public Session activityLogin(String... permissions) {
+        Session session = Session.getActiveSession();
+        if (!session.isOpened() && !session.isClosed()) {
+            session.openForRead(new Session.OpenRequest(mActivity.get())
+                    .setPermissions(Arrays.asList(permissions))
+                    .setCallback(mStatusCallback.get()));
+        } else {
+            session = Session.openActiveSession(mActivity.get(), true, mStatusCallback.get());
+        }
+        return session;
+    }
+
+    public void logout() {
         Session session = Session.getActiveSession();
 
         if (session != null) {
