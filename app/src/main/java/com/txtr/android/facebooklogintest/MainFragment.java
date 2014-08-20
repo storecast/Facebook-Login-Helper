@@ -37,12 +37,59 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         // Required empty public constructor
     }
 
+    /*
+     uiHelper requires a few methods to be overridden in order to properly manage
+     its lifecycle.
+     Those methods are:
+     - onCreate()
+     - onActivityResult()
+     - onSaveInstanceState()
+     - onResume()
+     - onPause()
+     - onDestroy()
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         uiHelper = new UiLifecycleHelper(getActivity(), facebookStatusCallback);
         uiHelper.onCreate(savedInstanceState);
     }
+
+    /*
+    This is a simple callback we need when we instantiate the uiHelper.
+    We used the private method as suggested by Facebook guidelines in order to be able to refresh our UI
+    even when the callback itself it's not called.
+     */
+    private final Session.StatusCallback facebookStatusCallback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
+
+    private void onSessionStateChange(Session session, SessionState sessionState, Exception exception) {
+        if (session.isOpened()) {
+            Request.newMeRequest(session, graphUserCallback).executeAsync();
+        } else if (session.isClosed()) {
+            updateUi(false);
+        }
+    }
+
+    private Request.GraphUserCallback graphUserCallback = new Request.GraphUserCallback() {
+        @Override
+        public void onCompleted(GraphUser user, Response response) {
+            if (user != null) {
+                mFacebookProfilePicture.setProfileId(user.getId());
+                mFacebookRealNameTextView.setText(user.getName());
+                /*
+                Getting user email is not as straight forward as for the rest, but we can achieve the same
+                results by directly accessing "email" key in the user structure.
+                 */
+                mFacebookMailAddressTextView.setText(user.asMap().get("email").toString());
+                updateUi(true);
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,33 +145,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         uiHelper.onDestroy();
     }
 
-    private final Session.StatusCallback facebookStatusCallback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
-        }
-    };
-
-    private void onSessionStateChange(Session session, SessionState sessionState, Exception exception) {
-        if (session.isOpened()) {
-            Request.newMeRequest(session, graphUserCallback).executeAsync();
-        } else if (session.isClosed()) {
-            updateUi(false);
-        }
-    }
-
-    private Request.GraphUserCallback graphUserCallback = new Request.GraphUserCallback() {
-        @Override
-        public void onCompleted(GraphUser user, Response response) {
-            if (user != null) {
-                mFacebookProfilePicture.setProfileId(user.getId());
-                mFacebookRealNameTextView.setText(user.getName());
-                mFacebookMailAddressTextView.setText(user.asMap().get("email").toString());
-                updateUi(true);
-            }
-        }
-    };
-
     private void updateUi(boolean isUserLoggedIn) {
         if (isUserLoggedIn) {
             mFacebookButton.setText(R.string.facebook_button_logout);
@@ -151,6 +171,13 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         }
     }
 
+    /*
+    This method will begin Facebook login.
+    For the purpose of this example, we needed the permissions for
+    public_profile and email.
+    If you need to store the Token, it will be enough to call
+    session.getAccessToken()
+     */
     private void loginWithFacebook() {
         Session session = Session.getActiveSession();
         if (!session.isOpened() && !session.isClosed()) {
@@ -163,6 +190,10 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         updateUi(true);
     }
 
+    /*
+    Here we programmatically request a logout from the social network.
+    Thanks to StackOverflow post: http://goo.gl/LMer41
+     */
     private void logoutFromFacebook() {
         Session session = Session.getActiveSession();
 
