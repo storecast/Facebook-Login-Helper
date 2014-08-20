@@ -1,8 +1,6 @@
 package com.txtr.android.facebooklogintest;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +14,12 @@ import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+import com.txtr.android.flh.lib.FacebookLoginFragment;
 
-import java.util.Arrays;
 
-
-public class MainFragment extends Fragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-    private UiLifecycleHelper uiHelper;
+public class MainFragment extends FacebookLoginFragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private RelativeLayout mFacebookDataLayout;
     private RelativeLayout mFacebookConsentLayout;
     private ProfilePictureView mFacebookProfilePicture;
@@ -37,42 +32,26 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         // Required empty public constructor
     }
 
-    /*
-     uiHelper requires a few methods to be overridden in order to properly manage
-     its lifecycle.
-     Those methods are:
-     - onCreate()
-     - onActivityResult()
-     - onSaveInstanceState()
-     - onResume()
-     - onPause()
-     - onDestroy()
-     */
+
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        uiHelper = new UiLifecycleHelper(getActivity(), facebookStatusCallback);
-        uiHelper.onCreate(savedInstanceState);
+    public void onSessionOpen(Session session, SessionState sessionState, Exception exception) {
+        Request.newMeRequest(session, graphUserCallback).executeAsync();
     }
 
-    /*
-    This is a simple callback we need when we instantiate the uiHelper.
-    We used the private method as suggested by Facebook guidelines in order to be able to refresh our UI
-    even when the callback itself it's not called.
-     */
-    private final Session.StatusCallback facebookStatusCallback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
-        }
-    };
+    @Override
+    public void onSessionClose(Session session, SessionState sessionState, Exception exception) {
+        updateUi(false);
+    }
 
-    private void onSessionStateChange(Session session, SessionState sessionState, Exception exception) {
-        if (session.isOpened()) {
-            Request.newMeRequest(session, graphUserCallback).executeAsync();
-        } else if (session.isClosed()) {
-            updateUi(false);
-        }
+    @Override
+    public void onSessionEvent(Session session, SessionState sessionState, Exception exception) {
+
+    }
+
+    @Override
+    public void onSessionNullResume() {
+        updateUi(false);
     }
 
     private Request.GraphUserCallback graphUserCallback = new Request.GraphUserCallback() {
@@ -108,42 +87,6 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         return parentView;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        uiHelper.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        uiHelper.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //this code will resume the session when the app is launched from somewhere else than from the launcher
-        Session session = Session.getActiveSession();
-        if (session != null && (session.isOpened() || session.isClosed())) {
-            onSessionStateChange(session, session.getState(), null);
-        } else {
-            updateUi(false);
-        }
-        uiHelper.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        uiHelper.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        uiHelper.onDestroy();
-    }
 
     private void updateUi(boolean isUserLoggedIn) {
         if (isUserLoggedIn) {
@@ -171,41 +114,13 @@ public class MainFragment extends Fragment implements View.OnClickListener, Comp
         }
     }
 
-    /*
-    This method will begin Facebook login.
-    For the purpose of this example, we needed the permissions for
-    public_profile and email.
-    If you need to store the Token, it will be enough to call
-    session.getAccessToken()
-     */
     private void loginWithFacebook() {
-        Session session = Session.getActiveSession();
-        if (!session.isOpened() && !session.isClosed()) {
-            session.openForRead(new Session.OpenRequest(this)
-                    .setPermissions(Arrays.asList("public_profile", "email"))
-                    .setCallback(facebookStatusCallback));
-        } else {
-            Session.openActiveSession(getActivity(), this, true, facebookStatusCallback);
-        }
+        login();
         updateUi(true);
     }
 
-    /*
-    Here we programmatically request a logout from the social network.
-    Thanks to StackOverflow post: http://goo.gl/LMer41
-     */
     private void logoutFromFacebook() {
-        Session session = Session.getActiveSession();
-
-        if (session != null) {
-            if (!session.isClosed()) {
-                session.closeAndClearTokenInformation();
-            }
-        } else {
-            session = new Session(getActivity());
-            Session.setActiveSession(session);
-            session.closeAndClearTokenInformation();
-        }
+        logout();
         updateUi(false);
     }
 

@@ -9,5 +9,8 @@
     <string name="facebook_button_login">Login with Facebook</string>
     <string name="facebook_button_logout">Logout from Facebook</string>
     <string name="facebook_token_label">Token: %s</string>
+    <string name="title_activity_facebook">FacebookActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="ic_activity">Activity sample</string>
 
 </resources>
