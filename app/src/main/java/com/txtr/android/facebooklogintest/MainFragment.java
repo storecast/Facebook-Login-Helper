@@ -1,6 +1,8 @@
 package com.txtr.android.facebooklogintest;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+import com.txtr.android.flh.lib.FacebookHelperException;
 import com.txtr.android.flh.lib.FacebookLoginFragment;
 
 
@@ -27,6 +30,8 @@ public class MainFragment extends FacebookLoginFragment implements View.OnClickL
     private TextView mFacebookMailAddressTextView;
     private Button mFacebookButton;
     private CheckBox mFacebookConsentCheckbox;
+
+    private static final String TAG = MainFragment.class.getSimpleName();
 
     public MainFragment() {
         // Required empty public constructor
@@ -115,12 +120,20 @@ public class MainFragment extends FacebookLoginFragment implements View.OnClickL
     }
 
     private void loginWithFacebook() {
-        login("public_profile", "email");
+        try {
+            login("public_profile", "email");
+        } catch (FacebookHelperException e) {
+            Log.w(TAG, e.getMessage());
+        }
         updateUi(true);
     }
 
     private void logoutFromFacebook() {
-        logout();
+        try {
+            logout();
+        } catch (FacebookHelperException e) {
+            Log.w(TAG, e.getMessage());
+        }
         updateUi(false);
     }
 

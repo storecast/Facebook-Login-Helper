@@ -1,3 +1,28 @@
+/**
+
+ The MIT License (MIT)
+
+ Copyright (c) 2014 'txtr GmbH
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+
+ */
 package com.txtr.android.flh.lib;
 
 
@@ -9,12 +34,10 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
-/**
- * A simple {@link Fragment} subclass.
- *
- */
+
 public abstract class FacebookLoginFragment extends Fragment implements SessionCallbacks{
     protected UiLifecycleHelper mUiHelper;
+    protected FacebookHelper mFacebookHelper;
 
 
     public FacebookLoginFragment() {
@@ -66,6 +89,7 @@ public abstract class FacebookLoginFragment extends Fragment implements SessionC
         } else {
             onSessionNullResume();
         }
+        mFacebookHelper = FacebookHelper.getInstance();
         mUiHelper.onResume();
     }
 
@@ -81,11 +105,22 @@ public abstract class FacebookLoginFragment extends Fragment implements SessionC
         mUiHelper.onDestroy();
     }
 
-    public Session login(String... profiles) {
-        return new FacebookHelper(getActivity(), this, mStatusCallback).fragmentLogin(profiles);
+    /**
+     * This method will perform the Facebook login
+     * @param profiles is a variable number of permissions (or profiles) you can ask Facebook.
+     * @return the {@link com.facebook.Session} object related to this login
+     * @throws {@link com.txtr.android.flh.lib.FacebookHelperException} in case one of the parameters is null.
+     */
+    public Session login(String... profiles) throws FacebookHelperException {
+        return mFacebookHelper.login(this, getActivity(), mStatusCallback, profiles);
     }
 
-    public void logout() {
-        new FacebookHelper(getActivity()).logout();
+    /**
+     * This method will perform the Facebook logout
+     * @throws {@link com.txtr.android.flh.lib.FacebookHelperException} in case the {@link android.support.v4.app.Fragment}
+     * is not attached to any {@link android.app.Activity}.
+     */
+    public void logout() throws FacebookHelperException {
+        mFacebookHelper.logout(getActivity());
     }
 }

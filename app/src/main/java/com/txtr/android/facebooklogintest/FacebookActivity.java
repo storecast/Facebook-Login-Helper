@@ -1,6 +1,7 @@
 package com.txtr.android.facebooklogintest;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,8 +17,8 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.ProfilePictureView;
+import com.txtr.android.flh.lib.FacebookHelperException;
 import com.txtr.android.flh.lib.FacebookLoginActivity;
-
 
 
 public class FacebookActivity extends FacebookLoginActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
@@ -28,6 +29,8 @@ public class FacebookActivity extends FacebookLoginActivity implements View.OnCl
     private TextView mFacebookMailAddressTextView;
     private Button mFacebookButton;
     private CheckBox mFacebookConsentCheckbox;
+
+    private static final String TAG = FacebookActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,12 +113,20 @@ public class FacebookActivity extends FacebookLoginActivity implements View.OnCl
     }
 
     private void loginWithFacebook() {
-        login("public_profile", "email");
+        try {
+            login("public_profile", "email");
+        } catch (FacebookHelperException e) {
+            Log.e(TAG, e.getMessage());
+        }
         updateUi(true);
     }
 
     private void logoutFromFacebook() {
-        logout();
+        try {
+            logout();
+        } catch (FacebookHelperException e) {
+            Log.e(TAG, e.getMessage());
+        }
         updateUi(false);
     }
 
