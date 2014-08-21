@@ -1,4 +1,4 @@
-Facebook Login Library
+Facebook Login Helper Library
 =========
 This sample project will show how to use [Facebook Android SDK][facebook sdk] to login and logout from the social network using a custom button and saving the data you might need (in this project we only save user full name and mail address) using the library we created to make an easier implementation of Facebook Android SDK.
 
